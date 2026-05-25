@@ -131,7 +131,7 @@ body {
     .left-panel, .right-panel { max-width: 100%; }
 }
 
-/* --- MEJORAS DE ACCESIBILIDAD PARA EL MODAL QR --- */
+/* --- ESTILOS MODAL QR Y SUBIDA --- */
 .qr-modal-overlay {
     display: none;
     position: fixed;
@@ -175,12 +175,32 @@ body {
 .qr-modal-title { color: #003a5d; font-size: 18px; font-weight: 500; margin: 0; }
 .qr-modal-subtitle { font-size: 12px; color: #666; margin: 0; }
 
-.qr-modal-content { padding: 25px 25px 10px 25px; }
+.qr-modal-content { padding: 25px 25px 20px 25px; }
+
+.qr-amount-box {
+    background-color: #f0f8ff;
+    border: 2px dashed #00abc8;
+    color: #003a5d;
+    font-size: 16px;
+    padding: 15px;
+    border-radius: 8px;
+    text-align: center;
+    font-weight: 500;
+    margin-bottom: 25px;
+}
+
+.qr-amount-box span {
+    font-size: 26px;
+    font-weight: 700;
+    display: block;
+    margin-top: 5px;
+    color: #003a5d;
+}
 
 .main-instruction { 
-    font-size: 16px; 
+    font-size: 15px; 
     font-weight: 700; 
-    color: #003a5d; 
+    color: #333; 
     margin-bottom: 15px;
     text-align: center;
 }
@@ -195,7 +215,7 @@ body {
 
 .qr-image-container {
     background-color: #fff;
-    border: 2px dashed #00abc8;
+    border: 2px dashed #ccc;
     border-radius: 8px;
     padding: 15px;
     display: inline-block;
@@ -222,7 +242,6 @@ body {
     gap: 10px;
     transition: background 0.3s;
 }
-
 .btn-download-qr:hover { background-color: #008fa7; }
 
 .detailed-instructions { margin-bottom: 20px; }
@@ -247,12 +266,7 @@ body {
     flex-shrink: 0;
 }
 
-.step-item p {
-    font-size: 14px;
-    color: #444;
-    line-height: 1.4;
-    margin: 0;
-}
+.step-item p { font-size: 14px; color: #444; line-height: 1.4; margin: 0; }
 
 .info-alert {
     background-color: #e3f2fd;
@@ -269,27 +283,66 @@ body {
     display: flex;
     justify-content: flex-end;
     gap: 10px;
-    margin-top: 25px;
+    margin-top: 15px;
 }
 
 .btn-modal-save {
     background-color: #003a5d;
     color: white;
     border: none;
-    padding: 8px 15px;
+    padding: 10px 18px;
     border-radius: 4px;
     cursor: pointer;
-    font-size: 13px;
+    font-size: 14px;
+    font-weight: 500;
+    transition: background-color 0.3s;
 }
 .btn-modal-save:hover { background-color: #002840; }
+.btn-modal-save:disabled { background-color: #999; cursor: not-allowed; }
 
 .btn-modal-cancel {
     background-color: #f0f0f0;
     color: #555;
     border: none;
-    padding: 8px 15px;
+    padding: 10px 18px;
     border-radius: 4px;
     cursor: pointer;
-    font-size: 13px;
+    font-size: 14px;
+    font-weight: 500;
 }
 .btn-modal-cancel:hover { background-color: #e0e0e0; }
+
+/* ESTILOS NUEVOS PARA LA SUBIDA DE COMPROBANTE */
+.upload-container {
+    border: 2px dashed #00abc8;
+    border-radius: 8px;
+    padding: 30px 20px;
+    text-align: center;
+    background-color: #f9f9f9;
+    margin-bottom: 20px;
+}
+
+.file-input { display: none; }
+
+.file-label {
+    background-color: #003a5d;
+    color: white;
+    padding: 12px 20px;
+    border-radius: 6px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 500;
+    font-size: 14px;
+    transition: background 0.3s;
+}
+.file-label:hover { background-color: #002840; }
+
+.file-name-display {
+    margin-top: 15px;
+    font-size: 13px;
+    color: #00abc8;
+    font-weight: 700;
+    word-break: break-all;
+}
