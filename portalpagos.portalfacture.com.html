@@ -191,51 +191,75 @@
             <div class="qr-modal-header">
                 <img src="img/LogoPSE.png" alt="PSE" class="qr-pse-logo">
                 <div class="header-text-group">
-                    <h3 class="qr-modal-title">Pagar con QR</h3>
+                    <h3 class="qr-modal-title">Pagar con Código QR</h3>
                     <p class="qr-modal-subtitle">Rápido, seguro y sin filas</p>
                 </div>
             </div>
             
             <div class="qr-modal-content">
-                <p class="main-instruction">Para pagar, siga estos pasos detallados:</p>
-                
-                <div class="qr-display-section">
-                    <div class="qr-image-container">
-                        <img src="img/q3.jpg" id="qrImagenPago" alt="Código QR de pago" class="qr-image">
+                <div id="qrPaso1">
+                    <div class="qr-amount-box">
+                        Total a pagar: <span id="qrTotalPagar">$0.00</span>
                     </div>
-                    <button type="button" class="btn-download-qr" id="btnDescargarQr">
-                        <i class="fas fa-download"></i> Guardar imagen en mi celular
-                    </button>
-                </div>
-                
-                <div class="detailed-instructions">
-                    <div class="step-item">
-                        <span class="step-number">1</span>
-                        <p><strong>Guarde el QR:</strong> Toque el botón azul de arriba para guardar la imagen en su galería de fotos.</p>
+
+                    <p class="main-instruction">Para pagar, siga estos pasos detallados:</p>
+                    
+                    <div class="qr-display-section">
+                        <div class="qr-image-container">
+                            <img src="img/q3.jpg" id="qrImagenPago" alt="Código QR de pago" class="qr-image">
+                        </div>
+                        <button type="button" class="btn-download-qr" id="btnDescargarQr">
+                            <i class="fas fa-download"></i> Guardar imagen en mi celular
+                        </button>
                     </div>
-                    <div class="step-item">
-                        <span class="step-number">2</span>
-                        <p><strong>Abra su Banco:</strong> Entre a la aplicación de su banco (Nequi, Daviplata, Bancolombia, etc.).</p>
+                    
+                    <div class="detailed-instructions">
+                        <div class="step-item">
+                            <span class="step-number">1</span>
+                            <p><strong>Guarde el QR:</strong> Toque el botón azul de arriba para guardar la imagen en su galería.</p>
+                        </div>
+                        <div class="step-item">
+                            <span class="step-number">2</span>
+                            <p><strong>Abra su Banco:</strong> Entre a la aplicación de su banco (Nequi, Bancolombia, etc.).</p>
+                        </div>
+                        <div class="step-item">
+                            <span class="step-number">3</span>
+                            <p><strong>Escanee:</strong> Elija la opción de pagar con QR y suba la imagen desde su galería.</p>
+                        </div>
                     </div>
-                    <div class="step-item">
-                        <span class="step-number">3</span>
-                        <p><strong>Escanee:</strong> Busque el icono de la cámara o "Pagar con QR" y elija la opción <strong>"Subir desde galería"</strong>.</p>
-                    </div>
-                    <div class="step-item">
-                        <span class="step-number">4</span>
-                        <p><strong>Confirme:</strong> Revise que el valor sea correcto y presione "Pagar".</p>
+
+                    <div class="modal-btns">
+                        <button type="button" class="btn-modal-cancel" id="btnCerrarQr">Cancelar</button>
+                        <button type="button" class="btn-modal-save" id="btnConfirmarFinal">Ya completé mi pago</button>
                     </div>
                 </div>
 
-                <div class="info-alert">
-                    <i class="fas fa-info-circle"></i> 
-                    <span>Una vez realizado el pago en su banco, puede cerrar esta ventana. Su recibo llegará al correo registrado.</span>
-                </div>
-            </div>
+                <div id="qrPaso2" style="display: none;">
+                    <p class="main-instruction">Adjunte su comprobante de pago</p>
+                    <p style="text-align: center; color: #555; font-size: 14px; margin-bottom: 20px;">
+                        Para validar su transacción, por favor suba una captura de pantalla o el recibo PDF generado por su banco.
+                    </p>
 
-            <div class="modal-btns" style="padding: 0 25px 25px 25px;">
-                <button type="button" class="btn-modal-cancel" id="btnCerrarQr">Regresar</button>
-                <button type="button" class="btn-modal-save" id="btnConfirmarFinal">Ya completé mi pago</button>
+                    <div class="upload-container">
+                        <input type="file" id="comprobanteInput" accept="image/*,.pdf" class="file-input">
+                        <label for="comprobanteInput" class="file-label">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                            <span>Seleccionar archivo o imagen</span>
+                        </label>
+                        <div id="fileNameDisplay" class="file-name-display">Ningún archivo seleccionado</div>
+                    </div>
+
+                    <div class="info-alert" style="margin-bottom: 20px;">
+                        <i class="fas fa-info-circle"></i> 
+                        <span>Asegúrese de que el número de aprobación o referencia sea visible.</span>
+                    </div>
+
+                    <div class="modal-btns">
+                        <button type="button" class="btn-modal-cancel" id="btnVolverAlQR">Volver al QR</button>
+                        <button type="button" class="btn-modal-save" id="btnEnviarComprobante">Enviar Comprobante</button>
+                    </div>
+                </div>
+
             </div>
         </div>
     </div>
